@@ -31,6 +31,7 @@
 (defgroup scratch-mode nil
   "A specialized mode for the scratch buffer.")
 
+;;;###autoload
 (defun scratch-reset ()
   "Reset the *scratch* buffer to its initial `scratch-mode' state."
   (interactive)
@@ -107,6 +108,7 @@ was generalized."
   "The keymap hints to show in `scratch-mode'."
   :type '(repeat string))
 
+;;;###autoload
 (define-derived-mode scratch-mode special-mode "scratch"
   "A dedicated scratch buffer mode with commonly used commands bound."
   (setq font-lock-defaults
