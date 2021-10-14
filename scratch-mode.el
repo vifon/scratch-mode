@@ -86,7 +86,6 @@ was generalized."
     (define-key map (kbd "A") #'org-agenda)
     (define-key map (kbd "r") (lookup-key global-map (kbd "C-x r")))
     (define-key map (kbd "g") #'scratch-reset)
-    (define-key map (kbd "S") #'scratch-dir)
     (define-key map (kbd "(") (scratch-self-insert))
     map))
 
@@ -103,8 +102,7 @@ was generalized."
     "z"
     "a"
     "j"
-    "J"
-    "S")
+    "J")
   "The keymap hints to show in `scratch-mode'."
   :type '(repeat string))
 
