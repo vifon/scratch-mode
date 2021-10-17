@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(require 'pcase)
+
 (defgroup scratch-mode nil
   "A specialized mode for the scratch buffer.")
 
@@ -121,13 +123,16 @@ was generalized."
   (let ((inhibit-read-only t))
     (erase-buffer)
     (dolist (elem scratch-mode-key-hints)
-      (let* ((key (if (consp elem)
-                      (car elem)
-                    elem))
-             (desc (if (consp elem)
-                       (cdr elem)
-                     (local-key-binding (kbd key)))))
-        (insert (format "%s: %s\n" key desc)))))
+      (insert
+       (pcase elem
+         ((and (pred stringp) key)
+          (format "%s: %s\n" key (local-key-binding (kbd key))))
+         (`(,(and (pred stringp) key) . ,(and (pred stringp) desc))
+          (format "%s: %s\n" key desc))
+         (`(,(and (pred stringp) key) . ,(and (pred functionp) descf))
+          (format "%s: %s\n" key (funcall descf key)))
+         (any (warn "Bad scratch-mode hint: %S" any)
+              (format "BAD HINT: %S\n" any))))))
   (set-buffer-modified-p nil)
   (goto-char (point-min))
   (add-hook 'change-major-mode-hook
