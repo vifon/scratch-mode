@@ -1,6 +1,6 @@
 ;;; scratch-mode.el --- An opinionated major mode for a multi-purpose scratch buffer.  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020-2021  Wojciech Siewierski
+;; Copyright (C) 2020-2022  Wojciech Siewierski
 
 ;; Author: Wojciech Siewierski
 ;; Keywords: convenience
@@ -43,9 +43,9 @@
 (defun scratch-self-insert (&optional pre post)
   "Produce a function calling `self-insert-command' in `scratch-mode'.
 
-First switch to `lisp-interaction-mode' or call `PRE' instead if supplied.
-Then call `self-insert-command' inserting whatever was pressed.
-Finally call `POST' if it was supplied.
+First switch to `lisp-interaction-mode' or call PRE instead if
+supplied.  Then call `self-insert-command' inserting whatever was
+pressed.  Finally call POST if it was supplied.
 
 Initially intended as a quick way to switch to
 `lisp-interaction-mode' and start a new S-expression, then it
@@ -105,7 +105,14 @@ was generalized."
     "a"
     "j"
     "J")
-  "The keymap hints to show in `scratch-mode'."
+  "The keymap hints to show in `scratch-mode'.
+
+Each list element should be either:
+
+- a key (the description gets looked up from the keymap), e.g. `\"e\"'
+- a cons of a key and a description, e.g. `(\"e\" . \"lisp-interaction-mode\")'
+- a cons of a key and a function taking the key and returning the description, e.g.
+  `(\"(\" . (lambda (k) (format \"%s + %s\" #'lisp-interaction-mode k)))'"
   :type '(repeat string))
 
 ;;;###autoload
