@@ -65,6 +65,7 @@ was generalized."
     (define-key map (kbd "e") #'lisp-interaction-mode)
     (when (fboundp #'markdown-mode)
       (define-key map (kbd "m") #'markdown-mode))
+    (define-key map (kbd "t") #'text-mode)
     (when user-init-file
       (define-key map (kbd "i") (lambda ()
                                   (interactive)
@@ -101,6 +102,7 @@ was generalized."
   `("o"
     "e"
     "m"
+    "t"
     ,@(when user-init-file
         `(("i" . ,(abbreviate-file-name user-init-file))))
     ,@(when early-init-file
