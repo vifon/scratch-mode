@@ -63,7 +63,8 @@ was generalized."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") #'org-mode)
     (define-key map (kbd "e") #'lisp-interaction-mode)
-    (define-key map (kbd "m") #'markdown-mode)
+    (when (fboundp #'markdown-mode)
+      (define-key map (kbd "m") #'markdown-mode))
     (when user-init-file
       (define-key map (kbd "i") (lambda ()
                                   (interactive)
@@ -77,13 +78,16 @@ was generalized."
                                 (find-library "scratch-mode")))
     (define-key map (kbd "p") #'project-switch-project)
     (define-key map (kbd "P") #'package-list-packages)
-    (define-key map (kbd "SPC") #'notmuch)
-    (define-key map (kbd "s") #'notmuch-search)
-    (define-key map (kbd "M") #'notmuch-mua-new-mail)
-    (define-key map (kbd "z") #'deft)
+    (when (fboundp #'notmuch)
+      (define-key map (kbd "SPC") #'notmuch)
+      (define-key map (kbd "s") #'notmuch-search)
+      (define-key map (kbd "M") #'notmuch-mua-new-mail))
+    (when (fboundp #'deft)
+      (define-key map (kbd "z") #'deft))
     (define-key map (kbd "C-c C-x C-j") #'org-clock-goto)
     (define-key map (kbd "j") #'org-clock-goto)
-    (define-key map (kbd "J") #'org-mru-clock-select-recent-task)
+    (when (fboundp #'org-mru-clock-select-recent-task)
+      (define-key map (kbd "J") #'org-mru-clock-select-recent-task))
     (define-key map (kbd "C-'") #'org-cycle-agenda-files)
     (define-key map (kbd "C-c C-w") #'org-refile)
     (define-key map (kbd "a") #'org-agenda)
@@ -102,9 +106,8 @@ was generalized."
     ,@(when early-init-file
         `(("I" . ,(abbreviate-file-name early-init-file))))
     "p"
-    "SPC"
-    "s"
-    "M"
+    ,@(when (fboundp #'notmuch)
+        '("SPC" "s" "M"))
     "z"
     "a"
     "j"
@@ -134,16 +137,17 @@ Each list element should be either:
   (let ((inhibit-read-only t))
     (erase-buffer)
     (dolist (elem scratch-mode-key-hints)
-      (insert
-       (pcase elem
-         ((and (pred stringp) key)
-          (format "%s: %s\n" key (local-key-binding (kbd key))))
-         (`(,(and (pred stringp) key) . ,(and (pred stringp) desc))
-          (format "%s: %s\n" key desc))
-         (`(,(and (pred stringp) key) . ,(and (pred functionp) descf))
-          (format "%s: %s\n" key (funcall descf key)))
-         (any (warn "Bad scratch-mode hint: %S" any)
-              (format "BAD HINT: %S\n" any))))))
+      (pcase elem
+        ((and (pred stringp) key)
+         (let ((kbind (local-key-binding (kbd key))))
+           (when kbind
+             (insert (format "%s: %s\n" key kbind)))))
+        (`(,(and (pred stringp) key) . ,(and (pred stringp) desc))
+         (insert (format "%s: %s\n" key desc)))
+        (`(,(and (pred stringp) key) . ,(and (pred functionp) descf))
+         (insert (format "%s: %s\n" key (funcall descf key))))
+        (any (warn "Bad scratch-mode hint: %S" any)
+             (insert (format "BAD HINT: %S\n" any))))))
   (set-buffer-modified-p nil)
   (goto-char (point-min))
   (add-hook 'change-major-mode-hook
