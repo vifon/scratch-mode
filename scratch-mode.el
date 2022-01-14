@@ -66,10 +66,10 @@ was generalized."
     (define-key map (kbd "m") #'markdown-mode)
     (define-key map (kbd "i") (lambda ()
                                 (interactive)
-                                (find-file "~/.emacs.d/init.el")))
+                                (find-file user-init-file)))
     (define-key map (kbd "I") (lambda ()
                                 (interactive)
-                                (find-file "~/.emacs.d/early-init.el")))
+                                (find-file early-init-file)))
     (define-key map (kbd "C") (lambda ()
                                 (interactive)
                                 (find-library "scratch-mode")))
@@ -92,11 +92,11 @@ was generalized."
     map))
 
 (defcustom scratch-mode-key-hints
-  '("o"
+  `("o"
     "e"
     "m"
-    ("i" . "~/.emacs.d/init.el")
-    ("I" . "~/.emacs.d/early-init.el")
+    ("i" . ,(abbreviate-file-name user-init-file))
+    ("I" . ,(abbreviate-file-name early-init-file))
     "p"
     "SPC"
     "s"
