@@ -64,12 +64,14 @@ was generalized."
     (define-key map (kbd "o") #'org-mode)
     (define-key map (kbd "e") #'lisp-interaction-mode)
     (define-key map (kbd "m") #'markdown-mode)
-    (define-key map (kbd "i") (lambda ()
-                                (interactive)
-                                (find-file user-init-file)))
-    (define-key map (kbd "I") (lambda ()
-                                (interactive)
-                                (find-file early-init-file)))
+    (when user-init-file
+      (define-key map (kbd "i") (lambda ()
+                                  (interactive)
+                                  (find-file user-init-file))))
+    (when early-init-file
+      (define-key map (kbd "I") (lambda ()
+                                  (interactive)
+                                  (find-file early-init-file))))
     (define-key map (kbd "C") (lambda ()
                                 (interactive)
                                 (find-library "scratch-mode")))
@@ -95,8 +97,10 @@ was generalized."
   `("o"
     "e"
     "m"
-    ("i" . ,(abbreviate-file-name user-init-file))
-    ("I" . ,(abbreviate-file-name early-init-file))
+    ,@(when user-init-file
+        `(("i" . ,(abbreviate-file-name user-init-file))))
+    ,@(when early-init-file
+        `(("I" . ,(abbreviate-file-name early-init-file))))
     "p"
     "SPC"
     "s"
