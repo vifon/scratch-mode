@@ -141,12 +141,19 @@ Each list element should be either:
     (dolist (elem scratch-mode-key-hints)
       (pcase elem
         ((and (pred stringp) key)
+         ;; Just the key, fetch the description from the bound command.
          (let ((kbind (local-key-binding (kbd key))))
+           ;; If the key isn't actually bound, ignore it.  It's most
+           ;; likely one of the "opportunistic" keybinds used only
+           ;; when some package is installed.
            (when kbind
              (insert (format "%s: %s\n" key kbind)))))
         (`(,(and (pred stringp) key) . ,(and (pred stringp) desc))
+         ;; A pair of a key and its description.  Use it verbatim.
          (insert (format "%s: %s\n" key desc)))
         (`(,(and (pred stringp) key) . ,(and (pred functionp) descf))
+         ;; A pair of a key and function used to compute the
+         ;; description.  Call it with the key as an argument.
          (insert (format "%s: %s\n" key (funcall descf key))))
         (any (warn "Bad scratch-mode hint: %S" any)
              (insert (format "BAD HINT: %S\n" any))))))
