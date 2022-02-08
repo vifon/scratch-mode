@@ -63,7 +63,7 @@ was generalized."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") #'org-mode)
     (define-key map (kbd "e") #'lisp-interaction-mode)
-    (when (fboundp #'markdown-mode)
+    (when (fboundp 'markdown-mode)
       (define-key map (kbd "m") #'markdown-mode))
     (define-key map (kbd "t") #'text-mode)
     (when user-init-file
@@ -79,15 +79,15 @@ was generalized."
                                 (find-library "scratch-mode")))
     (define-key map (kbd "p") #'project-switch-project)
     (define-key map (kbd "P") #'package-list-packages)
-    (when (fboundp #'notmuch)
+    (when (fboundp 'notmuch)
       (define-key map (kbd "SPC") #'notmuch)
       (define-key map (kbd "s") #'notmuch-search)
       (define-key map (kbd "M") #'notmuch-mua-new-mail))
-    (when (fboundp #'deft)
+    (when (fboundp 'deft)
       (define-key map (kbd "z") #'deft))
     (define-key map (kbd "C-c C-x C-j") #'org-clock-goto)
     (define-key map (kbd "j") #'org-clock-goto)
-    (when (fboundp #'org-mru-clock-select-recent-task)
+    (when (fboundp 'org-mru-clock-select-recent-task)
       (define-key map (kbd "J") #'org-mru-clock-select-recent-task))
     (define-key map (kbd "C-'") #'org-cycle-agenda-files)
     (define-key map (kbd "C-c C-w") #'org-refile)
@@ -108,7 +108,7 @@ was generalized."
     ,@(when early-init-file
         `(("I" . ,(abbreviate-file-name early-init-file))))
     "p"
-    ,@(when (fboundp #'notmuch)
+    ,@(when (fboundp 'notmuch)
         '("SPC" "s" "M"))
     "z"
     "a"
