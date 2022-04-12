@@ -124,6 +124,23 @@ Each list element should be either:
   `(\"(\" . (lambda (k) (format \"%s + %s\" #'lisp-interaction-mode k)))'"
   :type '(repeat string))
 
+(defcustom scratch-mode-dashboard-functions nil
+  "A list of functions to show various info in `scratch-mode'."
+  :type '(repeat (cons string function)))
+
+(defcustom scratch-mode-dashboard-separator "\n----------------\n"
+  "The separator between the `scratch-mode' dashboard and the key hints."
+  :type 'string)
+
+(defun scratch-mode-dashboard-generate ()
+  "Generate the dashboard section using `scratch-mode-dashboard-functions'."
+  (delete nil
+          (mapcar (lambda (f)
+                    (let ((result (funcall (cdr f))))
+                      (when result
+                        (format "%s: %s" (car f) result))))
+                  scratch-mode-dashboard-functions)))
+
 ;;;###autoload
 (define-derived-mode scratch-mode special-mode "scratch"
   "A dedicated scratch buffer mode with commonly used commands bound."
@@ -138,6 +155,10 @@ Each list element should be either:
 
   (let ((inhibit-read-only t))
     (erase-buffer)
+    (let ((dashboard (scratch-mode-dashboard-generate)))
+      (when dashboard
+        (insert (mapconcat #'identity dashboard "\n")
+                scratch-mode-dashboard-separator)))
     (dolist (elem scratch-mode-key-hints)
       (pcase elem
         ((and (pred stringp) key)
