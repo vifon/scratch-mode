@@ -135,11 +135,16 @@ Each list element should be either:
 (defun scratch-mode-dashboard-generate ()
   "Generate the dashboard section using `scratch-mode-dashboard-functions'."
   (delete nil
-          (mapcar (lambda (f)
-                    (let ((result (funcall (cdr f))))
-                      (when result
-                        (format "%s: %s" (car f) result))))
-                  scratch-mode-dashboard-functions)))
+          (let ((progress-reporter
+                 (make-progress-reporter "Generating scratch-mode dashboard...")))
+            (prog1
+                (mapcar (lambda (f)
+                             (progress-reporter-update progress-reporter (car f))
+                             (let ((result (funcall (cdr f))))
+                               (when result
+                                 (format "%s: %s" (car f) result))))
+                           scratch-mode-dashboard-functions)
+              (progress-reporter-done progress-reporter)))))
 
 ;;;###autoload
 (define-derived-mode scratch-mode special-mode "scratch"
