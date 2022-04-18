@@ -160,10 +160,11 @@ Each list element should be either:
 
   (let ((inhibit-read-only t))
     (erase-buffer)
-    (let ((dashboard (scratch-mode-dashboard-generate)))
-      (when dashboard
-        (insert (mapconcat #'identity dashboard "\n")
-                scratch-mode-dashboard-separator)))
+    (when scratch-mode-dashboard-functions
+      (let ((dashboard (scratch-mode-dashboard-generate)))
+        (when dashboard
+          (insert (mapconcat #'identity dashboard "\n")
+                  scratch-mode-dashboard-separator))))
     (dolist (elem scratch-mode-key-hints)
       (pcase elem
         ((and (pred stringp) key)
