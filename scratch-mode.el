@@ -137,6 +137,12 @@ Each list element should be either:
   "The separator between the `scratch-mode' dashboard and the key hints."
   :type 'string)
 
+(defcustom scratch-mode-show-cursor nil
+  "Whether and when to hide the cursor in `scratch-mode'."
+  :type '(radio (const :tag "No" nil)
+                (const :tag "Yes" t)
+                (const :tag "On non-empty dashboard" dashboard)))
+
 (defun scratch-mode-dashboard-generate ()
   "Generate the dashboard section using `scratch-mode-dashboard-functions'."
   (delete nil
@@ -158,7 +164,8 @@ Each list element should be either:
         '((("^\\(.*?\\):" 1 'bold)
            (": \\(.*\\)$" 1 'italic))))
 
-  (setq cursor-type nil)
+  (unless (eq scratch-mode-show-cursor t)
+    (setq cursor-type nil))
 
   (emacs-lock-mode 'kill)
   (cd "~/")
@@ -170,7 +177,9 @@ Each list element should be either:
       (let ((dashboard (scratch-mode-dashboard-generate)))
         (when dashboard
           (insert (mapconcat #'identity dashboard "\n")
-                  scratch-mode-dashboard-separator))))
+                  scratch-mode-dashboard-separator)
+          (when (eq scratch-mode-show-cursor 'dashboard)
+            (setq cursor-type t)))))
     (dolist (elem scratch-mode-key-hints)
       (pcase elem
         ((and (pred stringp) key)
