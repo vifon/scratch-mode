@@ -33,12 +33,17 @@
 (defgroup scratch-mode nil
   "A specialized mode for the scratch buffer.")
 
+(defcustom scratch-mode-dashboard-on-first-run nil
+  "Compute the `scratch-mode' during the Emacs init or only on the subsequent runs."
+  :type 'boolean)
+
 ;;;###autoload
 (defun scratch-reset ()
   "Reset the *scratch* buffer to its initial `scratch-mode' state."
   (interactive)
   (switch-to-buffer "*scratch*")
-  (scratch-mode))
+  (let ((scratch-mode-dashboard-on-first-run t))
+    (scratch-mode)))
 
 (defun scratch-self-insert (&optional pre post)
   "Produce a function calling `self-insert-command' in `scratch-mode'.
@@ -160,7 +165,8 @@ Each list element should be either:
 
   (let ((inhibit-read-only t))
     (erase-buffer)
-    (when scratch-mode-dashboard-functions
+    (when (and scratch-mode-dashboard-on-first-run
+               scratch-mode-dashboard-functions)
       (let ((dashboard (scratch-mode-dashboard-generate)))
         (when dashboard
           (insert (mapconcat #'identity dashboard "\n")
