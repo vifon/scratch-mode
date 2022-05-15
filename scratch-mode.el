@@ -138,7 +138,9 @@ Each list element should be either:
   :type 'string)
 
 (defcustom scratch-mode-show-cursor nil
-  "Whether and when to hide the cursor in `scratch-mode'."
+  "Whether and when to hide the cursor in `scratch-mode'.
+
+Useful mostly if the dashboard contains clickable text or buttons."
   :type '(radio (const :tag "No" nil)
                 (const :tag "Yes" t)
                 (const :tag "On non-empty dashboard" dashboard)))
