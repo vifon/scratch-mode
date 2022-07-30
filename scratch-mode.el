@@ -152,11 +152,11 @@ Useful mostly if the dashboard contains clickable text or buttons."
                  (make-progress-reporter "Generating scratch-mode dashboard...")))
             (prog1
                 (mapcar (lambda (f)
-                             (progress-reporter-update progress-reporter (car f))
-                             (let ((result (funcall (cdr f))))
-                               (when result
-                                 (format "%s: %s" (car f) result))))
-                           scratch-mode-dashboard-functions)
+                          (progress-reporter-update progress-reporter (car f))
+                          (let ((result (funcall (cdr f))))
+                            (when result
+                              (format "%s: %s" (car f) result))))
+                        scratch-mode-dashboard-functions)
               (progress-reporter-done progress-reporter)))))
 
 ;;;###autoload
