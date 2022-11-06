@@ -38,11 +38,14 @@
   :type 'boolean)
 
 ;;;###autoload
-(defun scratch-reset ()
-  "Reset the *scratch* buffer to its initial `scratch-mode' state."
-  (interactive)
+(defun scratch-reset (skip-dashboard)
+  "Reset the *scratch* buffer to its initial `scratch-mode' state.
+
+With the SKIP-DASHBOARD prefix argument, unconditionally skip the
+dashboard generation."
+  (interactive "P")
   (switch-to-buffer "*scratch*")
-  (let ((scratch-mode-dashboard-on-first-run t))
+  (let ((scratch-mode-dashboard-on-first-run (not skip-dashboard)))
     (scratch-mode)))
 
 (defun scratch-self-insert (&optional pre post)
