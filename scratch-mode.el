@@ -162,12 +162,14 @@ Useful mostly if the dashboard contains clickable text or buttons."
                         scratch-mode-dashboard-functions)
               (progress-reporter-done progress-reporter)))))
 
+(defvar scratch-mode-font-lock-keywords
+  '(("^\\(.*?\\):" 1 'bold)
+    (": \\(.*\\)$" 1 'italic)))
+
 ;;;###autoload
 (define-derived-mode scratch-mode special-mode "scratch"
   "A dedicated scratch buffer mode with commonly used commands bound."
-  (setq font-lock-defaults
-        '((("^\\(.*?\\):" 1 'bold)
-           (": \\(.*\\)$" 1 'italic))))
+  (setq font-lock-defaults '(scratch-mode-font-lock-keywords))
 
   (unless (eq scratch-mode-show-cursor t)
     (setq cursor-type nil))
