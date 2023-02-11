@@ -130,7 +130,14 @@ Each list element should be either:
 - a cons of a key and a description, e.g. `(\"e\" . \"lisp-interaction-mode\")'
 - a cons of a key and a function taking the key and returning the description, e.g.
   `(\"(\" . (lambda (k) (format \"%s + %s\" #'lisp-interaction-mode k)))'"
-  :type '(repeat string))
+  :type '(repeat
+          (choice (string :tag "Key")
+                  (cons :tag "Key + static description"
+                        (string :tag "Key")
+                        (string :tag "Description"))
+                  (cons :tag "Key + dynamic description"
+                        (string :tag "Key")
+                        (function :tag "Description function")))))
 
 (defcustom scratch-mode-dashboard-functions nil
   "A list of functions to show various info in `scratch-mode'."
