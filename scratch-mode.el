@@ -175,7 +175,9 @@ Useful mostly if the dashboard contains clickable text or buttons."
     (setq cursor-type nil))
 
   (emacs-lock-mode 'kill)
-  (cd "~/")
+
+  ;; chdir to the original working directory.
+  (cd (getenv "PWD"))
 
   (let ((inhibit-read-only t))
     (erase-buffer)
