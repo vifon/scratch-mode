@@ -1,6 +1,6 @@
-;;; scratch-mode.el --- An opinionated major mode for a multi-purpose scratch buffer.  -*- lexical-binding: t; -*-
+;;; scratch-mode.el --- An opinionated major mode for a multi-purpose scratch buffer  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020-2022  Wojciech Siewierski
+;; Copyright (C) 2020-2023  Wojciech Siewierski
 
 ;; Author: Wojciech Siewierski
 ;; Keywords: convenience
