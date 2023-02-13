@@ -104,6 +104,7 @@ was generalized."
     (define-key map (kbd "j") #'org-clock-goto)
     (when (fboundp 'org-mru-clock-select-recent-task)
       (define-key map (kbd "J") #'org-mru-clock-select-recent-task))
+    (define-key map (kbd "c") #'calc)
     (define-key map (kbd "C-'") #'org-cycle-agenda-files)
     (define-key map (kbd "C-c C-w") #'org-refile)
     (define-key map (kbd "a") #'org-agenda)
@@ -127,7 +128,8 @@ was generalized."
     ?z
     ?a
     ?j
-    ?J)
+    ?J
+    ?c)
   "The keymap hints to show in `scratch-mode'.
 
 Use the `(STRING . DEFN)' format of `define-key' to provide
