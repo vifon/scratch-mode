@@ -48,7 +48,7 @@ dashboard generation."
   (let ((scratch-mode-dashboard-on-first-run (not skip-dashboard)))
     (scratch-mode)))
 
-(defun scratch-self-insert (&optional pre post)
+(defun scratch-self-insert (&optional desc pre post)
   "Produce a function calling `self-insert-command' in `scratch-mode'.
 
 First switch to `lisp-interaction-mode' or call PRE instead if
@@ -58,14 +58,17 @@ pressed.  Finally call POST if it was supplied.
 Initially intended as a quick way to switch to
 `lisp-interaction-mode' and start a new S-expression, then it
 was generalized."
-  (lambda ()
-    (interactive)
-    (if pre
-        (funcall pre)
-      (lisp-interaction-mode))
-    (self-insert-command 1)
-    (when post
-      (funcall post))))
+  (let ((cmd (lambda ()
+               (interactive)
+               (if pre
+                   (funcall pre)
+                 (lisp-interaction-mode))
+               (self-insert-command 1)
+               (when post
+                 (funcall post)))))
+    (if desc
+        (cons desc cmd)
+      cmd)))
 
 (defvar scratch-mode-map
   (let ((map (make-sparse-keymap)))
@@ -75,13 +78,17 @@ was generalized."
       (define-key map (kbd "m") #'markdown-mode))
     (define-key map (kbd "t") #'text-mode)
     (when user-init-file
-      (define-key map (kbd "i") (lambda ()
-                                  (interactive)
-                                  (find-file user-init-file))))
+      (define-key map (kbd "i") (cons
+                                 (abbreviate-file-name user-init-file)
+                                 (lambda ()
+                                   (interactive)
+                                   (find-file user-init-file)))))
     (when early-init-file
-      (define-key map (kbd "I") (lambda ()
-                                  (interactive)
-                                  (find-file early-init-file))))
+      (define-key map (kbd "I") (cons
+                                 (abbreviate-file-name early-init-file)
+                                 (lambda ()
+                                   (interactive)
+                                   (find-file early-init-file)))))
     (define-key map (kbd "C") (lambda ()
                                 (interactive)
                                 (find-library "scratch-mode")))
@@ -103,41 +110,29 @@ was generalized."
     (define-key map (kbd "A") #'org-agenda)
     (define-key map (kbd "r") (lookup-key global-map (kbd "C-x r")))
     (define-key map (kbd "g") #'scratch-reset)
-    (define-key map (kbd "(") (scratch-self-insert))
+    (define-key map (kbd "(") (scratch-self-insert
+                               "lisp-interaction-mode + ("))
     map))
 
 (defcustom scratch-mode-key-hints
-  `("o"
-    "e"
-    "m"
-    "t"
-    ,@(when user-init-file
-        `(("i" . ,(abbreviate-file-name user-init-file))))
-    ,@(when early-init-file
-        `(("I" . ,(abbreviate-file-name early-init-file))))
-    "p"
+  `(?o
+    ?e
+    ?m
+    ?t
+    ,@(when user-init-file  '(?i))
+    ,@(when early-init-file '(?I))
+    ?p
     ,@(when (fboundp 'notmuch)
-        '("SPC" "s" "M"))
-    "z"
-    "a"
-    "j"
-    "J")
+        '(?\s ?s ?M))
+    ?z
+    ?a
+    ?j
+    ?J)
   "The keymap hints to show in `scratch-mode'.
 
-Each list element should be either:
-
-- a key (the description gets looked up from the keymap), e.g. `\"e\"'
-- a cons of a key and a description, e.g. `(\"e\" . \"lisp-interaction-mode\")'
-- a cons of a key and a function taking the key and returning the description, e.g.
-  `(\"(\" . (lambda (k) (format \"%s + %s\" #'lisp-interaction-mode k)))'"
-  :type '(repeat
-          (choice (string :tag "Key")
-                  (cons :tag "Key + static description"
-                        (string :tag "Key")
-                        (string :tag "Description"))
-                  (cons :tag "Key + dynamic description"
-                        (string :tag "Key")
-                        (function :tag "Description function")))))
+Use the `(STRING . DEFN)' format of `define-key' to provide
+a custom description for a key."
+  :type '(repeat character))
 
 (defcustom scratch-mode-dashboard-functions nil
   "A list of functions to show various info in `scratch-mode'."
@@ -197,25 +192,16 @@ Useful mostly if the dashboard contains clickable text or buttons."
                   scratch-mode-dashboard-separator)
           (when (eq scratch-mode-show-cursor 'dashboard)
             (setq cursor-type t)))))
-    (dolist (elem scratch-mode-key-hints)
-      (pcase elem
-        ((and (pred stringp) key)
-         ;; Just the key, fetch the description from the bound command.
-         (let ((kbind (local-key-binding (kbd key))))
-           ;; If the key isn't actually bound, ignore it.  It's most
-           ;; likely one of the "opportunistic" keybinds used only
-           ;; when some package is installed.
-           (when kbind
-             (insert (format "%s: %s\n" key kbind)))))
-        (`(,(and (pred stringp) key) . ,(and (pred stringp) desc))
-         ;; A pair of a key and its description.  Use it verbatim.
-         (insert (format "%s: %s\n" key desc)))
-        (`(,(and (pred stringp) key) . ,(and (pred functionp) descf))
-         ;; A pair of a key and function used to compute the
-         ;; description.  Call it with the key as an argument.
-         (insert (format "%s: %s\n" key (funcall descf key))))
-        (any (warn "Bad scratch-mode hint: %S" any)
-             (insert (format "BAD HINT: %S\n" any))))))
+
+    (let ((keymap-alist (cdr scratch-mode-map)))
+      (dolist (key scratch-mode-key-hints)
+        (pcase (alist-get key scratch-mode-map)
+          (`(,(and (pred stringp) desc)
+             . ,(pred commandp))
+           (insert (format "%s: %s\n" (key-description (list key)) desc)))
+          ((and (pred commandp) command)
+           (insert (format "%s: %s\n" (key-description (list key)) command)))))))
+
   (set-buffer-modified-p nil)
   (goto-char (point-min))
   (add-hook 'change-major-mode-hook
