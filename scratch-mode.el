@@ -49,7 +49,9 @@ dashboard generation."
     (scratch-mode)))
 
 (defun scratch-self-insert (&optional desc pre post)
-  "Produce a function calling `self-insert-command' in `scratch-mode'.
+  "Produce a keybinding calling `self-insert-command' in `scratch-mode'.
+
+DESC is used as a binding description if non-nil.
 
 First switch to `lisp-interaction-mode' or call PRE instead if
 supplied.  Then call `self-insert-command' inserting whatever was
@@ -70,6 +72,17 @@ was generalized."
         (cons desc cmd)
       cmd)))
 
+(defun scratch-browse-directory-binding (directory)
+  "Produce a keybinding browsing DIRECTORY.
+
+The DIRECTORY path processed with `abbreviate-file-name' is used
+as the binding description."
+  (cons
+   (abbreviate-file-name directory)
+   (lambda ()
+     (interactive)
+     (find-file directory))))
+
 (defvar scratch-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") #'org-mode)
@@ -78,17 +91,11 @@ was generalized."
       (define-key map (kbd "m") #'markdown-mode))
     (define-key map (kbd "t") #'text-mode)
     (when user-init-file
-      (define-key map (kbd "i") (cons
-                                 (abbreviate-file-name user-init-file)
-                                 (lambda ()
-                                   (interactive)
-                                   (find-file user-init-file)))))
+      (define-key map (kbd "i") (scratch-browse-directory-binding
+                                 user-init-file)))
     (when early-init-file
-      (define-key map (kbd "I") (cons
-                                 (abbreviate-file-name early-init-file)
-                                 (lambda ()
-                                   (interactive)
-                                   (find-file early-init-file)))))
+      (define-key map (kbd "I") (scratch-browse-directory-binding
+                                 early-init-file)))
     (define-key map (kbd "C") (lambda ()
                                 (interactive)
                                 (find-library "scratch-mode")))
