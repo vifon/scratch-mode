@@ -96,9 +96,6 @@ as the binding description."
     (when early-init-file
       (define-key map (kbd "I") (scratch-browse-directory-binding
                                  early-init-file)))
-    (define-key map (kbd "C") (lambda ()
-                                (interactive)
-                                (find-library "scratch-mode")))
     (define-key map (kbd "p") #'project-switch-project)
     (define-key map (kbd "P") #'package-list-packages)
     (when (fboundp 'notmuch)
