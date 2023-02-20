@@ -38,7 +38,7 @@
   :type 'boolean)
 
 ;;;###autoload
-(defun scratch-reset (skip-dashboard)
+(defun scratch-reset (&optional skip-dashboard)
   "Reset the *scratch* buffer to its initial `scratch-mode' state.
 
 With the SKIP-DASHBOARD prefix argument, unconditionally skip the
@@ -117,7 +117,6 @@ as the binding description."
     (define-key map (kbd "a") #'org-agenda)
     (define-key map (kbd "A") #'org-agenda)
     (define-key map (kbd "r") (lookup-key global-map (kbd "C-x r")))
-    (define-key map (kbd "g") #'scratch-reset)
     (define-key map (kbd "(") (scratch-self-insert
                                "lisp-interaction-mode + ("))
     map))
@@ -212,6 +211,9 @@ Useful mostly if the dashboard contains clickable text or buttons."
 
   (set-buffer-modified-p nil)
   (goto-char (point-min))
+  (setq-local revert-buffer-function
+              (lambda (_ignore-auto _noconfirm)
+                (scratch-reset)))
   (add-hook 'change-major-mode-hook
             (lambda ()
               (read-only-mode 0)
