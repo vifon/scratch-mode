@@ -1,0 +1,22 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.2.0
+  hooks:
+    - id: end-of-file-fixer
+      exclude: '^LICENSE$'
+    - id: check-yaml
+    - id: check-added-large-files
+
+- repo: meta
+  hooks:
+    - id: check-useless-excludes
+
+- repo: https://codeberg.org/vifon/pre-commit-hooks
+  rev: 3cf7c0ad7117cf8dbcf704c3d8abe8054b8521fd
+  hooks:
+    - id: shellcheck
+    - id: elisp-check-parens
+    - id: elisp-checkdoc
+    - id: no-elc
+    - id: no-tabs
+      exclude: '\.png$'
