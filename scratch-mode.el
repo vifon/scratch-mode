@@ -142,13 +142,9 @@ a custom description for a key."
 (defcustom scratch-mode-dashboard-functions nil
   "A list of functions to show various info in `scratch-mode'.
 
-Each function should return either nil or a function inserting
-text into the buffer, often a button.  Both inner and outer
-functions should take no arguments.  If the outer function
-returns nil, it means it has nothing to display.
-
-A trivial example:
-    ((lambda () (lambda () (insert \"example\"))))"
+Each function should either do nothing or insert text into the
+buffer, often a button.  Each insertion should usually end with
+a newline."
   :type '(repeat function))
 
 (defcustom scratch-mode-dashboard-separator "----------------\n"
@@ -163,28 +159,23 @@ Useful mostly if the dashboard contains clickable text or buttons."
                 (const :tag "Yes" t)
                 (const :tag "On non-empty dashboard" dashboard)))
 
-(defun scratch-mode-dashboard-prepare ()
-  "Prepare the dashboard handlers.
-
-Evaluates `scratch-mode-dashboard-functions' and returns a list
-of resulting functions with nils filtered out."
-  (delete nil
-          (let ((progress-reporter
-                 (make-progress-reporter "Generating scratch-mode dashboard...")))
-            (prog1
-                (mapcar (lambda (f)
-                          (progress-reporter-update progress-reporter)
-                          (funcall f))
-                        scratch-mode-dashboard-functions)
-              (progress-reporter-done progress-reporter)))))
+(defun scratch-mode-dashboard-run-functions ()
+  "Run functions from `scratch-mode-dashboard-functions'."
+  (let ((progress-reporter
+         (make-progress-reporter "Generating scratch-mode dashboard...")))
+    (mapc (lambda (f)
+            (progress-reporter-update progress-reporter)
+            (funcall f))
+          scratch-mode-dashboard-functions)
+    (progress-reporter-done progress-reporter)))
 
 (defun scratch-mode-dashboard-insert ()
-  "Insert the dashboard by evaluating the results of `scratch-mode-dashboard-functions'."
+  "Insert the dashboard."
   (when (and scratch-mode-dashboard-on-first-run
              scratch-mode-dashboard-functions)
-    (let ((dashboard (scratch-mode-dashboard-prepare)))
-      (when dashboard
-        (mapc #'funcall dashboard)
+    (let ((point (point)))
+      (scratch-mode-dashboard-run-functions)
+      (unless (= point (point))
         (insert scratch-mode-dashboard-separator)
         (when (eq scratch-mode-show-cursor 'dashboard)
           (setq cursor-type t))))))
