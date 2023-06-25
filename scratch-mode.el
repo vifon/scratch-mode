@@ -140,10 +140,18 @@ a custom description for a key."
   :type '(repeat character))
 
 (defcustom scratch-mode-dashboard-functions nil
-  "A list of functions to show various info in `scratch-mode'."
-  :type '(repeat (cons string function)))
+  "A list of functions to show various info in `scratch-mode'.
 
-(defcustom scratch-mode-dashboard-separator "\n----------------\n"
+Each function should return either nil or a function inserting
+text into the buffer, often a button.  Both inner and outer
+functions should take no arguments.  If the outer function
+returns nil, it means it has nothing to display.
+
+A trivial example:
+    ((lambda () (lambda () (insert \"example\"))))"
+  :type '(repeat function))
+
+(defcustom scratch-mode-dashboard-separator "----------------\n"
   "The separator between the `scratch-mode' dashboard and the key hints."
   :type 'string)
 
@@ -155,19 +163,31 @@ Useful mostly if the dashboard contains clickable text or buttons."
                 (const :tag "Yes" t)
                 (const :tag "On non-empty dashboard" dashboard)))
 
-(defun scratch-mode-dashboard-generate ()
-  "Generate the dashboard section using `scratch-mode-dashboard-functions'."
+(defun scratch-mode-dashboard-prepare ()
+  "Prepare the dashboard handlers.
+
+Evaluates `scratch-mode-dashboard-functions' and returns a list
+of resulting functions with nils filtered out."
   (delete nil
           (let ((progress-reporter
                  (make-progress-reporter "Generating scratch-mode dashboard...")))
             (prog1
                 (mapcar (lambda (f)
-                          (progress-reporter-update progress-reporter (car f))
-                          (let ((result (funcall (cdr f))))
-                            (when result
-                              (format "%s: %s" (car f) result))))
+                          (progress-reporter-update progress-reporter)
+                          (funcall f))
                         scratch-mode-dashboard-functions)
               (progress-reporter-done progress-reporter)))))
+
+(defun scratch-mode-dashboard-insert ()
+  "Insert the dashboard by evaluating the results of `scratch-mode-dashboard-functions'."
+  (when (and scratch-mode-dashboard-on-first-run
+             scratch-mode-dashboard-functions)
+    (let ((dashboard (scratch-mode-dashboard-prepare)))
+      (when dashboard
+        (mapc #'funcall dashboard)
+        (insert scratch-mode-dashboard-separator)
+        (when (eq scratch-mode-show-cursor 'dashboard)
+          (setq cursor-type t))))))
 
 (defvar scratch-mode-font-lock-keywords
   '(("^\\(.*?\\):" 1 'bold)
@@ -189,14 +209,7 @@ Useful mostly if the dashboard contains clickable text or buttons."
 
   (let ((inhibit-read-only t))
     (erase-buffer)
-    (when (and scratch-mode-dashboard-on-first-run
-               scratch-mode-dashboard-functions)
-      (let ((dashboard (scratch-mode-dashboard-generate)))
-        (when dashboard
-          (insert (mapconcat #'identity dashboard "\n")
-                  scratch-mode-dashboard-separator)
-          (when (eq scratch-mode-show-cursor 'dashboard)
-            (setq cursor-type t)))))
+    (scratch-mode-dashboard-insert)
 
     (dolist (key scratch-mode-key-hints)
       (pcase (alist-get key scratch-mode-map)
