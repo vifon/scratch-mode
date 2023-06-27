@@ -60,11 +60,11 @@ pressed.  Finally call POST if it was supplied.
 Initially intended as a quick way to switch to
 `lisp-interaction-mode' and start a new S-expression, then it
 was generalized."
+  (setq pre (or pre #'lisp-interaction-mode))
   (let ((cmd (lambda ()
                (interactive)
-               (if pre
-                   (funcall pre)
-                 (lisp-interaction-mode))
+               (when pre
+                 (funcall pre))
                (self-insert-command 1)
                (when post
                  (funcall post)))))
