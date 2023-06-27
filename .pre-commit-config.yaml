@@ -12,11 +12,10 @@ repos:
     - id: check-useless-excludes
 
 - repo: https://codeberg.org/vifon/pre-commit-hooks
-  rev: 3cf7c0ad7117cf8dbcf704c3d8abe8054b8521fd
+  rev: b4de7f6db54e5e1f893ec1138ad63c9623b0c8f3
   hooks:
     - id: shellcheck
     - id: elisp-check-parens
     - id: elisp-checkdoc
     - id: no-elc
     - id: no-tabs
-      exclude: '\.png$'
