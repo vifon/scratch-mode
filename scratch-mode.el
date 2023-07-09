@@ -85,6 +85,9 @@ as the binding description."
 
 (defvar scratch-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent
+     map (make-composed-keymap button-buffer-map special-mode-map))
+
     (define-key map (kbd "o") #'org-mode)
     (define-key map (kbd "e") #'lisp-interaction-mode)
     (when (fboundp 'markdown-mode)
