@@ -198,7 +198,7 @@ Useful mostly if the dashboard contains clickable text or buttons."
   (emacs-lock-mode 'kill)
 
   ;; chdir to the original working directory.
-  (let ((pwd (getenv "PWD")))
+  (when-let ((pwd (getenv "PWD")))
     (cd pwd))
 
   (let ((inhibit-read-only t))
